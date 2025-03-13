@@ -1,7 +1,36 @@
+<script setup>
+import { useAuthStore } from "@/stores/auth.js";
+import { storeToRefs } from "pinia";
+import { useRouter } from "vue-router";
+
+const authStore = useAuthStore();
+const { user } = storeToRefs(authStore);
+const router = useRouter();
+
+// 🔥 重新整理後自動載入使用者資訊
+authStore.loadUser();
+
+const logout = () => {
+  authStore.logout();
+  router.push("/login");
+};
+</script>
+
 <template>
   <nav class="navbar">
-    <router-link to="/">🏠 首頁</router-link>
-    |
+    <div class="nav-left">
+      <router-link to="/">🏠 首頁</router-link>
+      |
+      <router-link to="/products">🛍️ 商品列表</router-link>
+    </div>
+
+    <div class="nav-right">
+      <span v-if="user">
+        👤 {{ user.username }} |
+        <a @click="logout" class="logout">登出</a>
+      </span>
+      <router-link v-else to="/login">🔑 登入</router-link>
+    </div>
   </nav>
 </template>
 
@@ -14,22 +43,26 @@
   background-color: #333;
   padding: 10px;
   color: white;
-  text-align: center;
-  z-index: 1000; /* 確保在最上層 */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 1000;
 }
 
-.navbar a {
+.nav-left a,
+.nav-right a {
   color: white;
   text-decoration: none;
   margin: 0 10px;
 }
 
-.navbar a:hover {
+.nav-left a:hover,
+.nav-right a:hover {
   text-decoration: underline;
 }
 
-/* 讓頁面內容不會被 Navbar 擋住 */
-.page-content {
-  margin-top: 50px; /* 視 Navbar 高度調整 */
+.logout {
+  cursor: pointer;
+  color: red;
 }
 </style>
